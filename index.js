@@ -32,10 +32,20 @@ const client = new MongoClient(uri, {
   },
 });
 
+const gymScheduleCollection = client.db("gymDB").collection("gymSchedule");
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    app.post("/schedule", async (req, res) => {
+      const data = req.body;
+      const result = await gymScheduleCollection.insertOne(data);
+      res.send(result);
+      // console.log(data);
+      // res.send("data received");
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -50,7 +60,7 @@ run();
 
 // 05
 app.get("/", (req, res) => {
-  console.log("server is running");
+  res.send("server is running");
 });
 
 // 06
