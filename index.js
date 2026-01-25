@@ -9,7 +9,7 @@
 // 01
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 // 02
@@ -39,6 +39,7 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
+    // ========= post method
     app.post("/schedule", async (req, res) => {
       const data = req.body;
       const result = await gymScheduleCollection.insertOne(data);
@@ -47,9 +48,18 @@ async function run() {
       // res.send("data received");
     });
 
+    // ========= get method
     app.get("/schedule", async (req, res) => {
       const cursor = gymScheduleCollection.find();
       const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // ========= delete method
+    app.delete("/schedule/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await gymScheduleCollection.deleteOne(query);
       res.send(result);
     });
 
