@@ -7,6 +7,7 @@
 // 6. Server Startup (app.listen)
 // ===========================================================
 // 01
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -40,7 +41,7 @@ async function run() {
     await client.connect();
 
     // ========= post method
-    app.post("/schedule", async (req, res) => {
+    app.post("/schedules", async (req, res) => {
       const data = req.body;
       const result = await gymScheduleCollection.insertOne(data);
       res.send(result);
@@ -48,17 +49,23 @@ async function run() {
       // res.send("data received");
     });
 
-    // ========= get method
+    // ========= get method for all items
     app.get("/schedule", async (req, res) => {
       const cursor = gymScheduleCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
 
+    // ========= get method for one item
+    app.get("/schedule/:id", async (req, res) => {
+      const query = { _id: new ObjectId(req.params.id) };
+      const result = await gymScheduleCollection.findOne(query);
+      res.send(result);
+    });
+
     // ========= delete method
-    app.delete("/schedule/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
+    app.delete("/schedules/:id", async (req, res) => {
+      const query = { _id: new ObjectId(req.params.id) };
       const result = await gymScheduleCollection.deleteOne(query);
       res.send(result);
     });
