@@ -33,14 +33,27 @@ const client = new MongoClient(uri, {
   },
 });
 
-const gymScheduleCollection = client.db("gymDB").collection("gymSchedule");
-
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+    const gymScheduleCollection = client.db("gymDB").collection("gymSchedule");
 
-    // ========= post method
+    // ========= read operation for all items
+    app.get("/schedules", async (req, res) => {
+      const cursor = gymScheduleCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // ========= read operation for one item
+    app.get("/schedules/:id", async (req, res) => {
+      const query = { _id: new ObjectId(req.params.id) };
+      const result = await gymScheduleCollection.findOne(query);
+      res.send(result);
+    });
+
+    // ========= create operation
     app.post("/schedules", async (req, res) => {
       const data = req.body;
       const result = await gymScheduleCollection.insertOne(data);
@@ -49,21 +62,22 @@ async function run() {
       // res.send("data received");
     });
 
-    // ========= get method for all items
-    app.get("/schedule", async (req, res) => {
-      const cursor = gymScheduleCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
-    });
-
-    // ========= get method for one item
-    app.get("/schedule/:id", async (req, res) => {
+    // ========= update operation
+    app.patch("/schedules/:id", async (req, res) => {
       const query = { _id: new ObjectId(req.params.id) };
-      const result = await gymScheduleCollection.findOne(query);
+      const update = {
+        $set: {
+          title: req.body.title,
+          day: req.body.day,
+          date: req.body.date,
+          time: req.body.time,
+        },
+      };
+      const result = await gymScheduleCollection.updateOne(query, update);
       res.send(result);
     });
 
-    // ========= delete method
+    // ========= delete operation
     app.delete("/schedules/:id", async (req, res) => {
       const query = { _id: new ObjectId(req.params.id) };
       const result = await gymScheduleCollection.deleteOne(query);
