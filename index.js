@@ -41,7 +41,13 @@ async function run() {
 
     // ========= read operation for all items
     app.get("/schedules", async (req, res) => {
-      const cursor = gymScheduleCollection.find();
+      const { searchQuery } = req.query;
+      // console.log(req.query);
+      let option = {};
+      if (searchQuery) {
+        option = { title: { $regex: searchQuery, $options: "i" } };
+      }
+      const cursor = gymScheduleCollection.find(option);
       const result = await cursor.toArray();
       res.send(result);
     });
