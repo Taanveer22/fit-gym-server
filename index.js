@@ -62,7 +62,7 @@ async function run() {
       // res.send("data received");
     });
 
-    // ========= update operation
+    // ========= update operation for schedules
     app.patch("/schedules/:id", async (req, res) => {
       const query = { _id: new ObjectId(req.params.id) };
       const update = {
@@ -71,6 +71,18 @@ async function run() {
           day: req.body.day,
           date: req.body.date,
           time: req.body.time,
+        },
+      };
+      const result = await gymScheduleCollection.updateOne(query, update);
+      res.send(result);
+    });
+
+    // ========= update operation for status
+    app.patch("/status/:id", async (req, res) => {
+      const query = { _id: new ObjectId(req.params.id) };
+      const update = {
+        $set: {
+          isCompleted: true,
         },
       };
       const result = await gymScheduleCollection.updateOne(query, update);
